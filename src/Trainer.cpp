@@ -4,16 +4,8 @@
 #include <algorithm>
 #include <iostream>
 
-//move co
-//copy assignment operator
-//move assignment operator
-//destructor
+using namespace std;
 
-//copy constructor
-Trainer::Trainer(const Trainer &other) : capacity(other.capacity), open(other.open) {
-//    open = other.open;
-//    capacity = other.capacity;
-}
 
 // auto generated , need to check
 Trainer::Trainer(Trainer *pTrainer) {
@@ -30,7 +22,7 @@ int Trainer::getCapacity() const {
 }
 
 void Trainer::addCustomer(Customer *customer) {
-    this->customersList.push_back(customer); //should be new or not?
+    this->customersList.push_back(customer);
 }
 
 void Trainer::removeCustomer(int id) {
@@ -102,6 +94,106 @@ void Trainer::deleteAndUpdateOrder(std::vector<OrderPair> tmp) {
         this->addOrder(tmp[i].first, tmp[i].second);
     }
 }
+
+//Rule of 5
+Trainer::~Trainer(){//destructor
+    //customersList
+    for(int i=0; i<customersList.size();++i){
+        (*customersList[i]).~Customer();
+        customersList[i]=nullptr;
+    }
+    //orderList
+    orderList.clear();
+} //destructor
+
+Trainer::Trainer(Trainer &trainer){//copy constructor
+    /Copy Constructor:
+    Trainer::Trainer(const Trainer &other) {
+        salary = other.salary;
+        capacity = other.capacity;
+        open = other.open;
+        orderList = other.orderList;
+        for(Customer* cust:other.customersList){
+            customersList.push_back(cust->clone());
+        }
+
+    }
+    //orderList std::vector<OrderPair> orderList;
+    for(OrderPair p:trainer.getOrders()){
+        int id = p.first;
+
+
+    }
+    for(int i=0; i<orderList.size();++i){
+        OrderPair a((orderList[i]).first,(orderList[i]).second);
+        orderList.push_back(a);
+    }
+    capacity= trainer.getCapacity();
+    open = trainer.open;
+    salary=trainer.salary;
+} //Copy Constructor
+
+Trainer & Trainer::operator=(Trainer &trainer){
+    //check for "self assignment" and do nothing in that case
+    if(this != &trainer){
+        //clearing the old information
+        for(Customer* cust:customersList){
+            delete(cust);
+        }
+        customersList.clear();
+        orderList.clear();
+        //customersList
+        for(int i=0; i<customersList.size();++i){
+            customersList[i]= customersList[i];
+        }
+        //orderList
+        for(int i=0; i<orderList.size();++i){
+            OrderPair a((orderList[i]).first,(orderList[i]).second);
+            orderList.push_back(a);
+        }
+        capacity = trainer.getCapacity();
+        salary=trainer.salary;
+    }
+    return *this;
+
+} //Copy Assignment Operator
+
+Trainer::Trainer(Trainer&& other){
+    capacity = other.capacity;
+    open = other.open;
+    for(Customer* cust:other.customersList){
+        customersList.push_back(cust);
+        cust=nullptr;
+    }
+    for(OrderPair op:other.orderList){
+        orderList.push_back(op);
+    }
+    other.orderList.clear();
+
+} //Move constructor
+
+Trainer & Trainer::operator=(Trainer && other){
+    if(this != &other){
+        orderList.clear();
+        for(Customer* cust: customersList){
+            (*cust).~Customer();
+        }
+        customersList.clear();
+        capacity = other.capacity;
+        open = other.open;
+        for(Customer* cust:other.customersList){
+            customersList.push_back(cust);
+            cust=nullptr;
+        }
+        for(OrderPair op:other.orderList){
+            orderList.push_back(op);
+        }
+        other.orderList.clear();
+    }
+    return *this;
+} //Move Assignment Operator
+
+
 
 
 

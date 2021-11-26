@@ -15,6 +15,13 @@ public:
    Trainer(Trainer *pTrainer);//need to check auto generate
 
 
+    //RO5
+    Trainer(Trainer& trainer); //Copy Constructor
+    Trainer& operator=(Trainer& trainer); //Copy Assignment Operator
+    ~Trainer(); //destructor
+    Trainer(Trainer&& other); //Move constructor
+    Trainer& operator=(Trainer&& other); //Move Assignment Operator
+
 
     int getCapacity() const;
     void addCustomer(Customer* customer);

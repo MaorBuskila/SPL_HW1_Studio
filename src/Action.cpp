@@ -6,9 +6,7 @@ extern Studio* backup;
 BaseAction::BaseAction() {
 }
 
-
 ActionStatus BaseAction::getStatus() const {
-    //   std::cout << OpenTrainer
     return status;
 }
 
@@ -28,9 +26,7 @@ std::string BaseAction::getErrorMsg() const {
 OpenTrainer::OpenTrainer(int id, std::vector<Customer *> &customersList) : trainerId(id) {
     customers = customersList;
 
-
 }
-
 
 void OpenTrainer::act(Studio &studio) {
 
@@ -69,21 +65,6 @@ std::string OpenTrainer::toString() const {
 }
 
 
-void BaseAction::deleteSpace(std::string line) {
-    while (line[0] == ' ') {
-        line.erase(0);
-    }
-}
-
-void BaseAction::Setc_IN(std::string line) {
-
-    cIn = line;
-}
-
-std::string BaseAction::getc_IN() {
-    return cIn;
-}
-
 Order::Order(int id) : trainerId(id) {
 }
 
@@ -104,6 +85,18 @@ void Order::act(Studio &studio) {
                   << studio.getTrainer(trainerId)->getOrders().at(i).second.getName() << std::endl;
     }
     this->complete();
+
+}
+std::string Order::toString() const {
+    std::string line=cIn;
+    if(this->getStatus()==COMPLETED)
+        line+= " Completed";
+    else
+    {
+        line+= " Error: " + getErrorMsg();
+
+    }
+    return line;
 
 }
 
@@ -143,6 +136,16 @@ void MoveCustomer::act(Studio &studio) {
     studio.getTrainer(srcTrainer)->deleteAndUpdateOrder(tmp);
     this->complete();
 }
+std::string MoveCustomer::toString() const {
+    std::string line=cIn;
+    if(this->getStatus()==COMPLETED)
+        line+= " Completed";
+    else
+    {
+        line+= " Error: "+getErrorMsg();
+    }
+    return line;
+}
 
 Close::Close(int id) : trainerId(id) {}
 
@@ -156,6 +159,14 @@ void Close::act(Studio &studio) {
               << std::endl;
     this->complete();
     studio.getTrainer(trainerId)->closeTrainer();
+}
+std::string Close::toString() const {
+    std::string line=cIn;
+    if(this->getStatus()==COMPLETED)
+        line+= " Completed";
+    else
+        line+= " Error: "+getErrorMsg();
+    return line;
 }
 
 
@@ -171,11 +182,14 @@ void CloseAll::act(Studio &studio) {
 
     }
     this->complete();
-    studio.closeStudio();
+}
+std::string CloseAll::toString() const {
+    std::string line="closeall Completed";
+    return line;
+
+
 }
 
-
-//
 PrintWorkoutOptions::PrintWorkoutOptions() {
 
 }
@@ -190,7 +204,9 @@ void PrintWorkoutOptions::act(Studio &studio) {
     }
     this->complete();
 }
-//
+std::string PrintWorkoutOptions::toString() const {
+    return "PrintWorkOutOptions Completed";
+}
 
 PrintActionsLog::PrintActionsLog() {
 
@@ -200,86 +216,16 @@ void PrintActionsLog::act(Studio &studio) {
 
 
     for (int k = 0; k < studio.getActionsLog().size()-1; k++) {
-//        std::cout << studio.getActionsLog().at(k)->getc_IN() << " " ;
-//        if (studio.getActionsLog().at(k)->getStatus() == COMPLETED)
-//            std::cout << " Completed" << std::endl;
-//        else
-//            std::cout << "Error: " << studio.getActionsLog().at(k)->toString() << std::endl;
     std::cout << studio.getActionsLog().at(k)->toString() << std::endl;
     }
 
 }
+std::string PrintActionsLog::toString() const {
 
-//
-//BackupStudio::BackupStudio() {
-//
-//}
-//void BackupStudio::act(Studio& studio) {
-//
-//    if(backup== nullptr) {
-//        backup = new Studio(studio);
-//    }
-//    else {
-//        backup= nullptr;
-//        backup=new Studio(studio);
-//    }
-//
-//
-//
-//
-//}
-//RestoreStudio::RestoreStudio() {}
-//void RestoreStudio::act(Studio& studio) {
-//    if(backup==nullptr)
-//}
-std::string Order::toString() const {
-    std::string line=cIn;
-    if(this->getStatus()==COMPLETED)
-        line+= " Completed";
-    else
-    {
-        line+= " Error: " + getErrorMsg();
-
-    }
-    return line;
-
-}
-
-std::string MoveCustomer::toString() const {
-    std::string line=cIn;
-    if(this->getStatus()==COMPLETED)
-        line+= " Completed";
-    else
-    {
-        line+= " Error: "+getErrorMsg();
-    }
-    return line;
-}
-
-std::string Close::toString() const {
-    std::string line=cIn;
-    if(this->getStatus()==COMPLETED)
-    line+= " Completed";
-    else
-        line+= " Error: "+getErrorMsg();
-    return line;
-}
-
-std::string CloseAll::toString() const {
-    std::string line="closeall Completed";
-    return line;
-
-
-}
-
-std::string PrintWorkoutOptions::toString() const {
-    return "PrintWorkOutOptions Completed";
+    return "PrintActionsLog Completed";
 }
 
 
-std::string PrintTrainerStatus::toString() const {
-    return "PrintTrainerStatus Completed";;
-}
 
 PrintTrainerStatus::PrintTrainerStatus(int id) : trainerId(id) {
 
@@ -307,18 +253,54 @@ void PrintTrainerStatus::act(Studio &studio) {
         std::cout << "Trainer " << trainerId << " status: closed" << std::endl;
 
 }
-
-std::string PrintActionsLog::toString() const {
-
-     return "PrintActionsLog Completed";
+std::string PrintTrainerStatus::toString() const {
+    return "PrintTrainerStatus Completed";;
 }
 
+BackupStudio::BackupStudio() {
 
-//std::string BackupStudio::toString() const {
-//    return "nrewa";
-//}
-//
-//
-//std::string RestoreStudio::toString() const {
-//    return "nrewa";
-//}
+}
+void BackupStudio::act(Studio& studio) {
+
+    if(backup== nullptr) {
+        backup = new Studio(studio);
+    }
+    else {
+        delete backup;
+        backup = nullptr;
+        backup = new Studio(studio);
+    }
+    complete();
+}
+std::string BackupStudio::toString() const {
+    return "nrewa";
+}
+RestoreStudio::RestoreStudio() {}
+void RestoreStudio ::act(Studio &studio){
+    if (backup == nullptr){
+        error("No backup available");
+    }
+    else{
+        studio = *backup;
+        complete();
+    }
+}
+
+std::string RestoreStudio::toString() const {
+    return "nrewa";
+}
+
+void BaseAction::deleteSpace(std::string line) {
+    while (line[0] == ' ') {
+        line.erase(0);
+    }
+}
+
+void BaseAction::Setc_IN(std::string line) {
+
+    cIn = line;
+}
+
+std::string BaseAction::getc_IN() {
+    return cIn;
+}

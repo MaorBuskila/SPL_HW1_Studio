@@ -95,7 +95,6 @@ class PrintWorkoutOptions : public BaseAction {
 public:
     PrintWorkoutOptions();
     void act(Studio &studio);
-    void buildAction(std::string line);
     std::string toString() const;
 private:
 };
@@ -105,7 +104,6 @@ class PrintTrainerStatus : public BaseAction {
 public:
     PrintTrainerStatus(int id);
     void act(Studio &studio);
-    void buildAction(std::string line);
     std::string toString() const;
 private:
     const int trainerId;
@@ -116,30 +114,27 @@ class PrintActionsLog : public BaseAction {
 public:
     PrintActionsLog();
     void act(Studio &studio);
-    void buildAction(std::string line);
     std::string toString() const;
 private:
 };
 
 
-//class BackupStudio : public BaseAction {
-//public:
-//    BackupStudio();
-//    void act(Studio &studio);
-//    void buildAction(std::string line);
-//    std::string toString() const;
-//private:
-//};
-//
-//
-//class RestoreStudio : public BaseAction {
-//public:
-//    RestoreStudio();
-//    void act(Studio &studio);
-//    void buildAction(std::string line);
-//    std::string toString() const;
-//
-//};
+class BackupStudio : public BaseAction {
+public:
+    BackupStudio();
+    void act(Studio &studio);
+    std::string toString() const;
+private:
+};
+
+
+class RestoreStudio : public BaseAction {
+public:
+    RestoreStudio();
+    void act(Studio &studio);
+    std::string toString() const;
+
+};
 
 
 #endif

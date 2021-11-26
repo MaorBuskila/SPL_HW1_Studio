@@ -21,9 +21,12 @@ public:
     static void  deleteSpace(std::string line);
 
 
-    Studio (const Studio &old_studio); //copy constructor
-    Studio(Studio&& other);//move constructor
-   // ~Studio();
+    Studio (Studio& other); //Copy Constructor
+    ~Studio(); //destructor
+    Studio & operator=(Studio &other); //Copy Assignment Operator
+    Studio(Studio&& other); //Move constructor
+    Studio& operator=(Studio&& other); //Move Assignment Operator
+
 
     static int readNumberOfTrainers (std::ifstream &infile);
     void initializeTrainer(std::ifstream &infile, int numOfTrainers);

@@ -11,25 +11,6 @@
 
 using namespace std;
 
-//copy constructor
-//Studio::Studio (const Studio &old_studio){
-//    open = old_studio.open;
-//    trainers = old_studio.trainers;
-//    workout_options = old_studio.workout_options;
-//    actionsLog = old_studio.actionsLog;
-//}
-
-//move constructor
-Studio::Studio(Studio &&other) : open{other.open}, trainers{other.trainers}, workout_options{other.workout_options},
-                                 actionsLog{other.actionsLog} {
-// Nulling out the pointer to the temporary data
-//    other.workout_options = nullptr;
-//    other.trainers = nullptr;
-//    other.actionsLog = nullptr;
-}
-//copy assignment operator
-//move assignment operator
-//destructor
 
 int Studio::idGen = 0;
 int Studio::numberOftrainers = 0;
@@ -65,7 +46,7 @@ void Studio::initializeTrainer(std::ifstream &infile, int numOfTrainers) {
             ss.ignore();
         }
         ss >> num;
-        trainers.push_back(new Trainer(num)); //should be new or not ??
+        trainers.push_back(Trainer(num)); //should be new or not ??
     }
 }
 // trim from start (in place)
@@ -209,31 +190,34 @@ BaseAction *buildAction(std::string line) {
         for (int i = 0; ss >> i;) {
             numbers.push_back(i);
         }
-        return new MoveCustomer(numbers.at(0), numbers.at(1), numbers.at(2));
+        return MoveCustomer(numbers.at(0), numbers.at(1), numbers.at(2));
     }
     if (actionType == "close") {
         int trainerId = BaseAction::getTrainerId(line);
-        return new Close(trainerId);
+        return Close(trainerId);
     }
     if (actionType == "closeall") {
 
-        return new CloseAll();
+        return CloseAll();
     }
     if (actionType == "workout_options") {
 
-        return new PrintWorkoutOptions();
+        return PrintWorkoutOptions();
     }
     if(actionType == "status")
     {
         int trainerId = BaseAction::getTrainerId(line);
-        return new PrintTrainerStatus(trainerId);
+        return PrintTrainerStatus(trainerId);
 
     }
     if(actionType== "log")
-        return new PrintActionsLog();
+        return PrintActionsLog();
 
-//    if(actionType=="backup")
-//        return new BackupStudio();
+    if(actionType=="backup")
+        return BackupStudio();
+
+    if(actionType == "restore")
+        return RestoreStudio();
 
 
 
@@ -289,11 +273,123 @@ void Studio::closeStudio() {
     }
 
 }
-//destructor
-//Studio::~Studio() {
-//    delete OpenTrainer[];
-//
+
+//copy constructor
+//Studio::Studio (const Studio &old_studio){
+//    open = old_studio.open;
+//    trainers = old_studio.trainers;
+//    workout_options = old_studio.workout_options;
+//    actionsLog = old_studio.actionsLog;
 //}
 
+Studio:: Studio(Studio& other):
+        open(other.open)
+{
+    for(Trainer* t:other.trainers){
+        trainers.push_back(t);
+    }
+    for(Workout w: other.workout_options){
+        Workout newW(w.getId(),w.getName(), w.getPrice(), w.getType());
+        workout_options.push_back(newW);
+    }
+    for(BaseAction* ba: other.actionsLog){
+        actionsLog.push_back(ba);
+    }
+}
+Studio:: ~Studio(){
+    open = false;
+    for(Trainer* tr: trainers){
+        (*tr).~Trainer();
+    }
+    trainers.clear();
+    for(Workout w:workout_options){
+        w.~Workout();
+    }
+    workout_options.clear();
+    for(BaseAction* ba:actionsLog){
+        (*ba).~BaseAction();
+    }
+    actionsLog.clear();
 
+}
+
+Studio& Studio::operator= (Studio& other){
+    if(this== &other){
+        return* this;
+    }
+    else{
+        for(Trainer* tr: trainers){
+            (*tr).~Trainer();
+        }
+        trainers.clear();
+        for(Workout w:workout_options){
+            w.~Workout();
+        }
+        workout_options.clear();
+        for(BaseAction* ba:actionsLog){
+            (*ba).~BaseAction();
+        }
+        actionsLog.clear();
+        for(Trainer* t:other.trainers){
+            trainers.push_back(t);
+        }
+        for(Workout w: other.workout_options){
+            Workout newW(w.getId(),w.getName(), w.getPrice(), w.getType());
+            workout_options.push_back(newW);
+        }
+        for(BaseAction* ba: other.actionsLog){
+            actionsLog.push_back(ba);
+        }
+    }
+}
+
+Studio:: Studio(Studio&& other)://Move constructor
+        open(other.open),
+        trainers(other.trainers),
+        workout_options(other.workout_options),
+        actionsLog(other.actionsLog)
+{
+    other.workout_options.clear();
+    other.trainers.clear();
+    other.actionsLog.clear();
+}
+
+
+Studio& Studio:: operator=(Studio&& other) {//Move assignment operator
+    for (Trainer *tr: trainers) {
+        (*tr).~Trainer();
+    }
+    trainers.clear();
+
+    for (Workout w: workout_options) {
+        w.~Workout();
+    }
+    workout_options.clear();
+
+    for (BaseAction *ba: actionsLog) {
+        (*ba).~BaseAction();
+    }
+    actionsLog.clear();
+
+    open = other.open;
+    //std::vector<Trainer*> trainers;
+    for (Trainer *t: other.trainers) {
+        Trainer tra = new Trainer((*t)); //trainer copy constructor is called
+        trainers.push_back(tra);
+    }
+    //std::vector<Workout> workout_options;
+    for (Workout a: other.workout_options) {
+        int id = a.getId();
+        string name = a.getName();
+        int price = a.getPrice();
+        WorkoutType type = a.getType();
+        Workout work(id, name, price, type);
+        workout_options.push_back(work);
+    }
+
+    actionsLog = other.actionsLog;
+    other.workout_options.clear();
+    other.trainers.clear();
+    other.actionsLog.clear();
+}
 
